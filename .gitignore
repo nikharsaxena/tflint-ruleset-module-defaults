@@ -1,0 +1,12 @@
+# Built plugin binary
+/tflint-ruleset-module-defaults
+/tflint-ruleset-module-defaults.exe
+
+# Go build artifacts
+*.test
+*.out
+coverage.*
+
+# IDEs
+.idea/
+.vscode/
