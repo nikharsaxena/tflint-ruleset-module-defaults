@@ -2,6 +2,9 @@
 /tflint-ruleset-module-defaults
 /tflint-ruleset-module-defaults.exe
 
+# Release artifacts (cross-compiled zips, checksums)
+/dist/
+
 # Go build artifacts
 *.test
 *.out
