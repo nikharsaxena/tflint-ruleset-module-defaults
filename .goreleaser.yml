@@ -1,0 +1,52 @@
+version: 2
+
+# GoReleaser config. Driven by the release.yml workflow when a v* tag is pushed.
+# Mirrors the manual flow used for v0.1.0: build the four mainstream platforms,
+# package each binary as <name>_<os>_<arch>.zip, emit checksums.txt.
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: tflint-ruleset-module-defaults
+    main: ./cmd
+    binary: tflint-ruleset-module-defaults
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - id: tflint-ruleset-module-defaults
+    # tflint's --init looks for assets named <prefix>_<os>_<arch>.zip exactly,
+    # so the name template must NOT include the version.
+    name_template: "tflint-ruleset-module-defaults_{{ .Os }}_{{ .Arch }}"
+    formats:
+      - zip
+    # Ship the binary only — no README/LICENSE inside the zip. tflint expects
+    # a single executable per archive.
+    files:
+      - none*
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+# Auto-generate release notes from commit subjects since the previous tag.
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"

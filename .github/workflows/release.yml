@@ -1,0 +1,38 @@
+name: release
+
+# Fires on any tag matching v* — push the tag and the release publishes itself.
+# Manual trigger via workflow_dispatch is available for re-running a failed release.
+#
+# Safety note: this workflow does not read any user-controlled event fields
+# (issue titles, PR bodies, commit messages from forks, etc.) so the
+# expression-injection patterns called out in the GitHub security guide do not
+# apply here. The only auth used is the auto-provided secrets.GITHUB_TOKEN.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  # Required to create the GitHub release and upload assets.
+  contents: write
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # GoReleaser needs full history + tags to compute the changelog.
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
